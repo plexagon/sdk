@@ -573,14 +573,13 @@ class InferenceVisitorImpl extends InferenceVisitorBase
     assert(expressionType.typeParameters.length == node.typeArguments.length);
     FunctionType resultType = FunctionTypeInstantiator.instantiate(
         expressionType, node.typeArguments);
-    FreshStructuralParameters freshStructuralParameters =
-        getFreshStructuralParameters(node.structuralParameters);
-    resultType =
-        freshStructuralParameters.substitute(resultType) as FunctionType;
+    FreshStructuralParametersFromTypeParameters freshTypeParameters =
+        getFreshStructuralParametersFromTypeParameters(node.typeParameters);
+    resultType = freshTypeParameters.substitute(resultType) as FunctionType;
     resultType = new FunctionType(resultType.positionalParameters,
         resultType.returnType, resultType.declaredNullability,
         namedParameters: resultType.namedParameters,
-        typeParameters: freshStructuralParameters.freshTypeParameters,
+        typeParameters: freshTypeParameters.freshTypeParameters,
         requiredParameterCount: resultType.requiredParameterCount);
     ExpressionInferenceResult inferredResult =
         instantiateTearOff(resultType, typeContext, node);

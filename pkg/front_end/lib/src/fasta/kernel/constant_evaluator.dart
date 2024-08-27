@@ -5043,20 +5043,19 @@ class ConstantEvaluator implements ExpressionVisitor<Constant> {
           new Instantiation(_wrap(constant),
               node.typeArguments.map((t) => env.substituteType(t)).toList()));
     }
-
-    int? typeParameterCount;
+    List<TypeParameter>? typeParameters;
     if (constant is TearOffConstant) {
       Member target = constant.target;
       if (target is Procedure) {
-        typeParameterCount = target.function.typeParameters.length;
+        typeParameters = target.function.typeParameters;
       } else if (target is Constructor) {
-        typeParameterCount = target.enclosingClass.typeParameters.length;
+        typeParameters = target.enclosingClass.typeParameters;
       }
     } else if (constant is TypedefTearOffConstant) {
-      typeParameterCount = constant.parameters.length;
+      typeParameters = constant.parameters;
     }
-    if (typeParameterCount != null) {
-      if (node.typeArguments.length == typeParameterCount) {
+    if (typeParameters != null) {
+      if (node.typeArguments.length == typeParameters.length) {
         List<DartType>? types = _evaluateDartTypes(node, node.typeArguments);
         if (types == null) {
           AbortConstant error = _gotError!;
@@ -5100,9 +5099,9 @@ class ConstantEvaluator implements ExpressionVisitor<Constant> {
   Constant visitTypedefTearOff(TypedefTearOff node) {
     final Constant constant = _evaluateSubexpression(node.expression);
     if (constant is TearOffConstant) {
-      FreshStructuralParameters freshTypeParameters =
-          getFreshStructuralParameters(node.structuralParameters);
-      List<StructuralParameter> typeParameters =
+      FreshTypeParameters freshTypeParameters =
+          getFreshTypeParameters(node.typeParameters);
+      List<TypeParameter> typeParameters =
           freshTypeParameters.freshTypeParameters;
       List<DartType> typeArguments = new List<DartType>.generate(
           node.typeArguments.length,

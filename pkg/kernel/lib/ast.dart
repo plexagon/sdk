@@ -9081,19 +9081,19 @@ class RedirectingFactoryTearOff extends Expression {
 }
 
 class TypedefTearOff extends Expression {
-  final List<StructuralParameter> structuralParameters;
+  final List<TypeParameter> typeParameters;
   Expression expression;
   final List<DartType> typeArguments;
 
-  TypedefTearOff(
-      this.structuralParameters, this.expression, this.typeArguments) {
+  TypedefTearOff(this.typeParameters, this.expression, this.typeArguments) {
     expression.parent = this;
+    setParents(typeParameters, this);
   }
 
   @override
   DartType getStaticTypeInternal(StaticTypeContext context) {
-    FreshStructuralParameters freshTypeParameters =
-        getFreshStructuralParameters(structuralParameters);
+    FreshStructuralParametersFromTypeParameters freshTypeParameters =
+        getFreshStructuralParametersFromTypeParameters(typeParameters);
     FunctionType type = expression.getStaticType(context) as FunctionType;
     type = freshTypeParameters.substitute(
             FunctionTypeInstantiator.instantiate(type, typeArguments))
@@ -9115,7 +9115,7 @@ class TypedefTearOff extends Expression {
   @override
   void visitChildren(Visitor v) {
     expression.accept(v);
-    visitList(structuralParameters, v);
+    visitList(typeParameters, v);
     visitList(typeArguments, v);
   }
 
@@ -9123,6 +9123,7 @@ class TypedefTearOff extends Expression {
   void transformChildren(Transformer v) {
     expression = v.transform(expression);
     expression.parent = this;
+    v.transformList(typeParameters, this);
     v.transformDartTypeList(typeArguments);
   }
 
@@ -9130,6 +9131,7 @@ class TypedefTearOff extends Expression {
   void transformOrRemoveChildren(RemovingTransformer v) {
     expression = v.transform(expression);
     expression.parent = this;
+    v.transformList(typeParameters, this, dummyTypeParameter);
     v.transformDartTypeList(typeArguments);
   }
 
@@ -9140,7 +9142,7 @@ class TypedefTearOff extends Expression {
 
   @override
   void toTextInternal(AstPrinter printer) {
-    printer.writeStructuralParameters(structuralParameters);
+    printer.writeTypeParameters(typeParameters);
     printer.write(".(");
     printer.writeExpression(expression);
     printer.writeTypeArguments(typeArguments);
@@ -14438,7 +14440,8 @@ class RedirectingFactoryTearOffConstant extends Constant
 }
 
 class TypedefTearOffConstant extends Constant {
-  final List<StructuralParameter> parameters;
+  // TODO(johnniwinther): Change this to use [StructuralParameter].
+  final List<TypeParameter> parameters;
   final TearOffConstant tearOffConstant;
   final List<DartType> types;
 
@@ -14471,7 +14474,7 @@ class TypedefTearOffConstant extends Constant {
 
   @override
   void toTextInternal(AstPrinter printer) {
-    printer.writeStructuralParameters(parameters);
+    printer.writeTypeParameters(parameters);
     printer.writeConstant(tearOffConstant);
     printer.writeTypeArguments(types);
   }
@@ -14487,8 +14490,7 @@ class TypedefTearOffConstant extends Constant {
     if (parameters.isNotEmpty) {
       Assumptions assumptions = new Assumptions();
       for (int index = 0; index < parameters.length; index++) {
-        assumptions.assumeStructuralParameter(
-            parameters[index], other.parameters[index]);
+        assumptions.assume(parameters[index], other.parameters[index]);
       }
       for (int index = 0; index < parameters.length; index++) {
         if (!parameters[index]
@@ -14509,7 +14511,7 @@ class TypedefTearOffConstant extends Constant {
   int _computeHashCode() {
     int hash = 1237;
     for (int i = 0; i < parameters.length; ++i) {
-      StructuralParameter parameter = parameters[i];
+      TypeParameter parameter = parameters[i];
       hash = 0x3fffffff & (hash * 31 + parameter.bound.hashCode);
     }
     for (int i = 0; i < types.length; ++i) {
@@ -14522,8 +14524,8 @@ class TypedefTearOffConstant extends Constant {
   @override
   DartType getType(StaticTypeContext context) {
     FunctionType type = tearOffConstant.getType(context) as FunctionType;
-    FreshStructuralParameters freshStructuralParameters =
-        getFreshStructuralParameters(parameters);
+    FreshStructuralParametersFromTypeParameters freshStructuralParameters =
+        getFreshStructuralParametersFromTypeParameters(parameters);
     type = freshStructuralParameters.substitute(
         FunctionTypeInstantiator.instantiate(type, types)) as FunctionType;
     return new FunctionType(

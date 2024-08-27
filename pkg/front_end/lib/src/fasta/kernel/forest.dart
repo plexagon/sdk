@@ -747,7 +747,7 @@ class Forest {
 
   TypedefTearOff createTypedefTearOff(
       int fileOffset,
-      List<StructuralParameter> typeParameters,
+      List<TypeParameter> typeParameters,
       Expression expression,
       List<DartType> typeArguments) {
     return new TypedefTearOff(typeParameters, expression, typeArguments)

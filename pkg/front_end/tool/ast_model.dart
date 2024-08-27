@@ -138,7 +138,7 @@ const Map<String?, Map<String, FieldRule?>> _fieldRuleMap = {
     'typeParameters': FieldRule(isDeclaration: true),
   },
   'TypedefTearOff': {
-    'structuralParameters': FieldRule(isDeclaration: true),
+    'typeParameters': FieldRule(isDeclaration: true),
   },
   'TypedefTearOffConstant': {
     'parameters': FieldRule(isDeclaration: true),

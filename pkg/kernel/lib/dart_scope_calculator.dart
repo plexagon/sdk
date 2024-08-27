@@ -514,6 +514,13 @@ class DartScopeBuilder2 extends VisitorDefault<void> with VisitorVoidMixin {
   }
 
   @override
+  void visitTypedefTearOff(TypedefTearOff node) {
+    typeParameterScopes.add([...node.typeParameters]);
+    super.visitTypedefTearOff(node);
+    typeParameterScopes.removeLast();
+  }
+
+  @override
   void visitVariableSet(VariableSet node) {
     super.visitVariableSet(node);
     if (node.variable.isHoisted) {

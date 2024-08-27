@@ -3624,11 +3624,10 @@ abstract class InferenceVisitorBase implements InferenceVisitor {
           inferred: true);
 
       if (expression is TypedefTearOff) {
-        FunctionTypeInstantiator instantiator =
-            new FunctionTypeInstantiator.fromIterables(
-                expression.structuralParameters, typeArguments);
+        Substitution substitution =
+            Substitution.fromPairs(expression.typeParameters, typeArguments);
         typeArguments =
-            expression.typeArguments.map(instantiator.substitute).toList();
+            expression.typeArguments.map(substitution.substituteType).toList();
         expression = expression.expression;
       } else {
         LoweredTypedefTearOff? loweredTypedefTearOff =

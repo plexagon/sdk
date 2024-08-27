@@ -290,7 +290,7 @@ class BinaryPrinter implements Visitor<void>, BinarySink {
       writeNode(constant.expression);
     } else if (constant is TypedefTearOffConstant) {
       writeByte(ConstantTag.TypedefTearOffConstant);
-      enterFunctionTypeScope(structuralParameters: constant.parameters);
+      enterScope(typeParameters: constant.parameters);
       writeNodeList(constant.parameters);
       writeConstantReference(constant.tearOffConstant);
       final int length = constant.types.length;
@@ -298,7 +298,7 @@ class BinaryPrinter implements Visitor<void>, BinarySink {
       for (int i = 0; i < length; ++i) {
         writeDartType(constant.types[i]);
       }
-      leaveFunctionTypeScope(structuralParameters: constant.parameters);
+      leaveScope(typeParameters: constant.parameters);
     } else if (constant is RecordConstant) {
       writeByte(ConstantTag.RecordConstant);
       writeUInt30(constant.positional.length);
@@ -717,11 +717,11 @@ class BinaryPrinter implements Visitor<void>, BinarySink {
   }
 
   void enterFunctionTypeScope(
-      {List<StructuralParameter>? structuralParameters,
+      {List<StructuralParameter>? typeParameters,
       bool memberScope = false,
       bool variableScope = false}) {
-    if (structuralParameters != null) {
-      _typeParameterIndexer.enterFunctionType(structuralParameters);
+    if (typeParameters != null) {
+      _typeParameterIndexer.enterFunctionType(typeParameters);
     }
     if (memberScope) {
       _variableIndexer = null;
@@ -733,7 +733,7 @@ class BinaryPrinter implements Visitor<void>, BinarySink {
   }
 
   void leaveFunctionTypeScope(
-      {List<StructuralParameter>? structuralParameters,
+      {List<StructuralParameter>? typeParameters,
       bool memberScope = false,
       bool variableScope = false}) {
     if (variableScope) {
@@ -742,8 +742,8 @@ class BinaryPrinter implements Visitor<void>, BinarySink {
     if (memberScope) {
       _variableIndexer = null;
     }
-    if (structuralParameters != null) {
-      _typeParameterIndexer.exitFunctionType(structuralParameters);
+    if (typeParameters != null) {
+      _typeParameterIndexer.exitFunctionType(typeParameters);
     }
   }
 
@@ -1726,11 +1726,11 @@ class BinaryPrinter implements Visitor<void>, BinarySink {
   void visitTypedefTearOff(TypedefTearOff node) {
     writeByte(Tag.TypedefTearOff);
     writeOffset(node.fileOffset);
-    enterFunctionTypeScope(structuralParameters: node.structuralParameters);
-    writeNodeList(node.structuralParameters);
+    enterScope(typeParameters: node.typeParameters);
+    writeNodeList(node.typeParameters);
     writeNode(node.expression);
     writeNodeList(node.typeArguments);
-    leaveFunctionTypeScope(structuralParameters: node.structuralParameters);
+    leaveScope(typeParameters: node.typeParameters);
   }
 
   @override
@@ -2535,7 +2535,7 @@ class BinaryPrinter implements Visitor<void>, BinarySink {
     } else {
       writeByte(Tag.FunctionType);
       writeByte(node.nullability.index);
-      enterFunctionTypeScope(structuralParameters: node.typeParameters);
+      enterFunctionTypeScope(typeParameters: node.typeParameters);
       writeNodeList(node.typeParameters);
       writeUInt30(node.requiredParameterCount);
       writeUInt30(
@@ -2543,7 +2543,7 @@ class BinaryPrinter implements Visitor<void>, BinarySink {
       writeNodeList(node.positionalParameters);
       writeNodeList(node.namedParameters);
       writeNode(node.returnType);
-      leaveFunctionTypeScope(structuralParameters: node.typeParameters);
+      leaveFunctionTypeScope(typeParameters: node.typeParameters);
     }
   }
 

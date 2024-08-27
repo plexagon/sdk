@@ -849,7 +849,10 @@ class CloneVisitorNotMembers implements TreeVisitor<TreeNode> {
 
   @override
   TreeNode visitTypedefTearOff(TypedefTearOff node) {
-    return new TypedefTearOff(node.structuralParameters, clone(node.expression),
+    prepareTypeParameters(node.typeParameters);
+    return new TypedefTearOff(
+        node.typeParameters.map(visitTypeParameter).toList(),
+        clone(node.expression),
         node.typeArguments.map(visitType).toList());
   }
 

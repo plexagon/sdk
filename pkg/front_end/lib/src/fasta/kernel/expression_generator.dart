@@ -3276,10 +3276,8 @@ class TypeUseGenerator extends AbstractReadOnlyAccessGenerator {
                         .createStaticTearOff(token.charOffset, tearOffLowering);
                   }
                 }
-                FreshStructuralParametersFromTypeParameters
-                    freshTypeParameters =
-                    getFreshStructuralParametersFromTypeParameters(
-                        aliasBuilder.typedef.typeParameters);
+                FreshTypeParameters freshTypeParameters =
+                    getFreshTypeParameters(aliasBuilder.typedef.typeParameters);
                 List<DartType>? substitutedTypeArguments;
                 if (builtTypeArguments != null) {
                   substitutedTypeArguments = <DartType>[];
